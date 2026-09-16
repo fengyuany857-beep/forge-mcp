@@ -1,0 +1,12 @@
+{
+  "name": "forge-mcp",
+  "version": "0.0.0-r9-resolver-prototype",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}
