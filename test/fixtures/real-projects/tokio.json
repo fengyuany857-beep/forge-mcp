@@ -1,0 +1,73 @@
+{
+  "project": "Tokio",
+  "source_snapshot": {
+    "repository": "tokio-rs/tokio",
+    "branch": "master",
+    "revision": "eb9cdf2ff012ec22d4efd74cf46d04222264cd8e",
+    "evidence": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "blob_sha": "6d1960e9b96ef4a432702b2f758c752c7e4dadb1",
+        "claims": [
+          "CI contains a fmt check using rustfmt --check --edition 2021 over tracked Rust files",
+          "CI contains a clippy job and pins rust_clippy to 1.88"
+        ]
+      }
+    ]
+  },
+  "workspace_identity_ref": "WS-TOKIO-EB9CDF2F",
+  "bounded_scope": {
+    "paths": {
+      "include": ["tokio/**/*.rs", "tokio-util/**/*.rs"]
+    },
+    "languages": ["rust"]
+  },
+  "search_coverage": {
+    "state": "BOUNDED_SUFFICIENT",
+    "ref": "COV-TOKIO-CI-FMT-SLICE"
+  },
+  "rules": [
+    {
+      "id": "CR-TOKIO-RUSTFMT",
+      "object_revision": "eb9cdf2f:ci-rustfmt",
+      "rule_class": "FORMAT",
+      "statement": "Tracked Rust source is checked by rustfmt with edition 2021 in CI.",
+      "source_class": "CI_PIPELINE",
+      "scope": {
+        "paths": {
+          "include": ["**/*.rs"]
+        },
+        "languages": ["rust"]
+      },
+      "epistemic_state": "VERIFIED",
+      "binding_state": "REPOSITORY_DECLARED",
+      "enforcement_state": "CI_ENFORCED",
+      "enforcement_backend_refs": [".github/workflows/ci.yml#fmt"],
+      "mutation_policy": "FORMAT_ONLY",
+      "decision": {
+        "key": "rustfmt.edition",
+        "value": "2021"
+      },
+      "precedence": {
+        "resolver_family": "rustfmt"
+      },
+      "lifecycle_state": "ACTIVE"
+    }
+  ],
+  "waivers": [],
+  "cases": [
+    {
+      "name": "Tokio Rust source receives the CI-enforced rustfmt rule",
+      "target": {
+        "path": "tokio/src/runtime/mod.rs",
+        "language": "rust"
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "resolution_basis": "APPLICABLE_RULES",
+        "effective_rule_refs": ["CR-TOKIO-RUSTFMT"],
+        "effective_mutation_policy": "FORMAT_ONLY"
+      }
+    }
+  ]
+}
