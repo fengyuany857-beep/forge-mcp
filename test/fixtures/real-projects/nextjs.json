@@ -7,7 +7,7 @@
     "evidence": [
       {
         "path": "package.json",
-        "blob_sha": "10ef5e03ffaa5508e948c58c4af39f35f6c5525f",
+        "blob_sha": "10ef5e03ffaa5508e948c58c4af39bbc34650da6",
         "claims": [
           "prettier-check runs prettier --check .",
           "lint-eslint runs eslint --config eslint.cli.config.mjs",
