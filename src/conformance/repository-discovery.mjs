@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 
-export const DISCOVERY_VERSION = '0.1.0-r9-candidate'
+export const DISCOVERY_VERSION = '0.1.1-r9-candidate'
 
 function stableSerialize(value) {
   if (value === null || typeof value !== 'object') return JSON.stringify(value)
@@ -116,11 +116,11 @@ function parsePackageScripts(snapshot, artifact) {
   for (const [script, commandValue] of Object.entries(scripts)) {
     const command = String(commandValue)
     const checks = [
-      ['PRETTIER_COMMAND', 'prettier', /\bprettier\b[^\n]*--check\b/i, 'FORMAT'],
-      ['ESLINT_COMMAND', 'eslint', /\beslint\b/i, 'LINT'],
-      ['BIOME_COMMAND', 'biome', /\bbiome\b[^\n]*\b(?:check|lint|format)\b/i, 'LINT'],
-      ['RUFF_COMMAND', 'ruff', /\bruff\b\s+(?:check|format)\b/i, 'LINT'],
-      ['BLACK_COMMAND', 'black', /\bblack\b[^\n]*--check\b/i, 'FORMAT'],
+      ['PRETTIER_COMMAND', 'prettier', /(?:^|[\s;&|])prettier(?:\s|$)[^\n]*--check(?:\s|$)/i, 'FORMAT'],
+      ['ESLINT_COMMAND', 'eslint', /(?:^|[\s;&|])eslint(?:\s|$)/i, 'LINT'],
+      ['BIOME_COMMAND', 'biome', /(?:^|[\s;&|])biome(?:\s|$)[^\n]*\b(?:check|lint|format)\b/i, 'LINT'],
+      ['RUFF_COMMAND', 'ruff', /(?:^|[\s;&|])ruff(?:\s|$)[^\n]*\b(?:check|format)\b/i, 'LINT'],
+      ['BLACK_COMMAND', 'black', /(?:^|[\s;&|])black(?:\s|$)[^\n]*--check(?:\s|$)/i, 'FORMAT'],
     ]
     for (const [type, tool, pattern, ruleClass] of checks) {
       if (!pattern.test(command)) continue
@@ -293,13 +293,14 @@ function parseGithubActions(snapshot, artifact) {
   const detectors = [
     ['CI_RUSTFMT_CHECK', 'rustfmt', /\brustfmt\s+--check\b/, 'FORMAT', 'rust'],
     ['CI_CLIPPY_CHECK', 'clippy', /\bcargo\s+clippy\b/, 'LINT', 'rust'],
-    ['CI_PRETTIER_CHECK', 'prettier', /\bprettier\b[^\n]*--check\b/, 'FORMAT', null],
-    ['CI_ESLINT_CHECK', 'eslint', /\beslint\b/, 'LINT', null],
-    ['CI_RUFF_CHECK', 'ruff', /\bruff\s+check\b/, 'LINT', 'python'],
-    ['CI_BLACK_CHECK', 'black', /\bblack\b[^\n]*--check\b/, 'FORMAT', 'python'],
+    ['CI_PRETTIER_CHECK', 'prettier', /(?:^|[\s;&|])prettier(?:\s|$)[^\n]*--check(?:\s|$)/, 'FORMAT', null],
+    ['CI_ESLINT_CHECK', 'eslint', /(?:^|[\s;&|])eslint(?:\s|$)/, 'LINT', null],
+    ['CI_RUFF_CHECK', 'ruff', /(?:^|[\s;&|])ruff(?:\s|$)[^\n]*\bcheck\b/, 'LINT', 'python'],
+    ['CI_BLACK_CHECK', 'black', /(?:^|[\s;&|])black(?:\s|$)[^\n]*--check(?:\s|$)/, 'FORMAT', 'python'],
   ]
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index]
+    if (/^\s*-\s*name\s*:/.test(line)) continue
     for (const [type, tool, pattern, ruleClass, language] of detectors) {
       if (!pattern.test(line)) continue
       const job = nearestWorkflowJob(lines, index)
