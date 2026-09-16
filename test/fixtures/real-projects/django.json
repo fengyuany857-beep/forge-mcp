@@ -1,0 +1,104 @@
+{
+  "project": "Django",
+  "source_snapshot": {
+    "repository": "django/django",
+    "branch": "main",
+    "revision": "64edef37e7b419dd584307d84650a192fb47dc4c",
+    "evidence": [
+      {
+        "path": "pyproject.toml",
+        "blob_sha": "cb9d0e6b8d3113ded349eaf77a12fd2042420739",
+        "claims": [
+          "Black is configured with target-version py312",
+          "Black force-excludes tests/test_runner_apps/tagged/tests_syntax_error.py",
+          "isort uses the black profile"
+        ]
+      }
+    ]
+  },
+  "workspace_identity_ref": "WS-DJANGO-64EDEF37",
+  "bounded_scope": {
+    "paths": {
+      "include": ["django/**/*.py", "tests/**/*.py"]
+    },
+    "languages": ["python"]
+  },
+  "search_coverage": {
+    "state": "BOUNDED_SUFFICIENT",
+    "ref": "COV-DJANGO-PYPROJECT-BLACK-SLICE"
+  },
+  "rules": [
+    {
+      "id": "CR-DJANGO-BLACK",
+      "object_revision": "64edef37:pyproject-black",
+      "rule_class": "FORMAT",
+      "statement": "Python files are formatted under the repository Black configuration.",
+      "source_class": "EXECUTABLE_CONFIG",
+      "scope": {
+        "paths": {
+          "include": ["**/*.py"]
+        },
+        "languages": ["python"]
+      },
+      "epistemic_state": "VERIFIED",
+      "binding_state": "REPOSITORY_DECLARED",
+      "enforcement_state": "TOOL_CHECKED",
+      "enforcement_backend_refs": ["pyproject.toml#[tool.black]"],
+      "mutation_policy": "FORMAT_ONLY",
+      "decision": {
+        "key": "format.backend",
+        "value": "black:py312"
+      },
+      "precedence": {
+        "resolver_family": "black"
+      },
+      "lifecycle_state": "ACTIVE"
+    }
+  ],
+  "waivers": [
+    {
+      "id": "CW-DJANGO-BLACK-SYNTAX-ERROR",
+      "object_revision": "64edef37:black-force-exclude",
+      "rule_ref": "CR-DJANGO-BLACK",
+      "scope": {
+        "paths": ["tests/test_runner_apps/tagged/tests_syntax_error.py"]
+      },
+      "waiver_type": "EXPLICIT_CONFIG",
+      "reason": "Repository Black force-exclude keeps the intentional syntax-error fixture outside formatter mutation.",
+      "epistemic_state": "VERIFIED",
+      "governance_effect": "REPOSITORY_DECLARED",
+      "requirement_compatibility": "UNKNOWN",
+      "lifecycle_state": "ACTIVE"
+    }
+  ],
+  "cases": [
+    {
+      "name": "ordinary Django Python source receives the Black rule",
+      "target": {
+        "path": "django/db/models/base.py",
+        "language": "python"
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "resolution_basis": "APPLICABLE_RULES",
+        "effective_rule_refs": ["CR-DJANGO-BLACK"],
+        "waived_rule_refs": [],
+        "effective_mutation_policy": "FORMAT_ONLY"
+      }
+    },
+    {
+      "name": "intentional syntax-error fixture is preserved by explicit repository waiver",
+      "target": {
+        "path": "tests/test_runner_apps/tagged/tests_syntax_error.py",
+        "language": "python"
+      },
+      "expected": {
+        "status": "RESOLVED",
+        "resolution_basis": "APPLICABLE_RULES_WITH_WAIVERS",
+        "effective_rule_refs": [],
+        "waived_rule_refs": ["CR-DJANGO-BLACK"],
+        "effective_mutation_policy": "NOT_APPLICABLE"
+      }
+    }
+  ]
+}
