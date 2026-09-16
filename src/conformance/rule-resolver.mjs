@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { matchesGlob } from 'node:path'
 
-export const RESOLVER_VERSION = '0.1.0-r9-candidate'
+export const RESOLVER_VERSION = '0.1.1-r9-candidate'
 
 const ACTIVE = 'ACTIVE'
 const VERIFIED = 'VERIFIED'
@@ -49,6 +49,12 @@ function pathScopeMatches(path, pathScope = {}) {
   return true
 }
 
+function scalarScopeMatches(actual, expected) {
+  if (expected == null || expected === '') return true
+  if (actual == null || actual === '') return false
+  return actual === expected
+}
+
 function listScopeMatches(actual, expected) {
   const list = asArray(expected)
   if (list.length === 0) return true
@@ -70,6 +76,8 @@ function conditionsMatch(context, conditions) {
 }
 
 function scopeMatches(scope = {}, target, context = {}) {
+  if (!scalarScopeMatches(target.repositoryRef, scope.repository_ref ?? scope.repositoryRef)) return false
+  if (!scalarScopeMatches(target.workspaceIdentityRef, scope.workspace_identity_ref ?? scope.workspaceIdentityRef)) return false
   if (!pathScopeMatches(target.path, scope.paths ?? {})) return false
   if (!listScopeMatches(target.language, scope.languages)) return false
   if (!listScopeMatches(target.fileKind, scope.file_kinds ?? scope.fileKinds)) return false
@@ -245,7 +253,12 @@ export function resolveConformance({
   searchCoverage,
   context = {},
 } = {}) {
-  const normalizedTarget = { ...target, path: normalizePath(target?.path) }
+  const normalizedTarget = {
+    ...target,
+    path: normalizePath(target?.path),
+    repositoryRef: target?.repositoryRef ?? target?.repository_ref ?? null,
+    workspaceIdentityRef: target?.workspaceIdentityRef ?? target?.workspace_identity_ref ?? workspaceIdentityRef ?? null,
+  }
   const base = {
     resolver_version: RESOLVER_VERSION,
     target_locator: normalizedTarget,
